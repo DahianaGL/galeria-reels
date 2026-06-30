@@ -139,6 +139,11 @@
     width:100% !important;
     max-width:100%;
   }
+  .lazy-msg{
+    color:var(--text-dim);
+    font-size:13px;
+    text-align:center;
+  }
   .placeholder{
     width:100%;
     min-height:460px;
@@ -245,25 +250,12 @@ links.forEach((url, i) => {
 
   const embedWrap = document.createElement('div');
   embedWrap.className = 'embed-wrap';
+  embedWrap.innerHTML = `<div class="lazy-msg">Cargando vista previa…</div>`;
 
-  if(isTikTok){
-    // Extraer video id para el embed oficial de TikTok
-    const match = url.match(/video\/(\d+)/);
-    const videoId = match ? match[1] : '';
-    const userMatch = url.match(/@([^/]+)/);
-    const user = userMatch ? userMatch[1] : '';
-    embedWrap.innerHTML = `
-      <blockquote class="tiktok-embed" cite="${url}" data-video-id="${videoId}" style="max-width: 325px; min-width: 280px;">
-        <section><a target="_blank" href="${url}">@${user}</a></section>
-      </blockquote>
-    `;
-  } else {
-    // Embed oficial de Instagram (blockquote + embed.js)
-    embedWrap.innerHTML = `
-      <blockquote class="instagram-media" data-instgrm-permalink="${url}" data-instgrm-version="14" style="background:#FFF; border-radius:8px; margin:0; max-width:340px; width:100%;">
-      </blockquote>
-    `;
-  }
+  // Guardamos los datos necesarios para construir el embed solo cuando sea visible
+  embedWrap.dataset.url = url;
+  embedWrap.dataset.platform = platform;
+  embedWrap.dataset.loaded = "false";
 
   card.appendChild(embedWrap);
   grid.appendChild(card);
@@ -273,7 +265,51 @@ document.getElementById('count-ig').textContent = `Instagram: ${igCount}`;
 document.getElementById('count-tt').textContent = `TikTok: ${ttCount}`;
 document.getElementById('count-total').textContent = `Total: ${links.length}`;
 
-// Re-procesar embeds una vez cargados los scripts
+// Construye el embed real (blockquote) para una tarjeta dada
+function buildEmbed(wrap){
+  if(wrap.dataset.loaded === "true") return;
+  wrap.dataset.loaded = "true";
+  const url = wrap.dataset.url;
+  const isTikTok = wrap.dataset.platform === 'tt';
+
+  if(isTikTok){
+    const match = url.match(/video\/(\d+)/);
+    const videoId = match ? match[1] : '';
+    const userMatch = url.match(/@([^/]+)/);
+    const user = userMatch ? userMatch[1] : '';
+    wrap.innerHTML = `
+      <blockquote class="tiktok-embed" cite="${url}" data-video-id="${videoId}" style="max-width: 325px; min-width: 280px;">
+        <section><a target="_blank" href="${url}">@${user}</a></section>
+      </blockquote>
+    `;
+    if(window.tiktokEmbed && window.tiktokEmbed.lib && window.tiktokEmbed.lib.render){
+      window.tiktokEmbed.lib.render([wrap.querySelector('.tiktok-embed')]);
+    }
+  } else {
+    wrap.innerHTML = `
+      <blockquote class="instagram-media" data-instgrm-permalink="${url}" data-instgrm-version="14" style="background:#FFF; border-radius:8px; margin:0; max-width:340px; width:100%;">
+      </blockquote>
+    `;
+    if(window.instgrm) window.instgrm.Embeds.process();
+  }
+}
+
+// Carga diferida en bloques pequeños: solo procesamos los embeds cuando
+// el usuario se acerca a ellos en el scroll, para no saturar a Instagram
+// con demasiadas peticiones simultáneas (causa común de errores 404).
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting){
+      buildEmbed(entry.target);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { rootMargin: '400px 0px' });
+
+document.querySelectorAll('.embed-wrap').forEach(wrap => observer.observe(wrap));
+
+// Cargamos las primeras tarjetas (visibles al abrir la página) de inmediato,
+// el resto se irá cargando en bloques pequeños conforme aparecen en pantalla
 window.addEventListener('load', () => {
   setTimeout(() => {
     if(window.instgrm) window.instgrm.Embeds.process();
