@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Galería de Ideas — Reels</title>
+<style>
+  :root{
+    --bg-deep:#040b1a;
+    --bg-panel:#0a1530;
+    --bg-card:#0e1d40;
+    --blue-electric:#2e6bff;
+    --blue-cyan:#3fd0ff;
+    --blue-soft:#8fb4ff;
+    --text-main:#eaf2ff;
+    --text-dim:#7e93c2;
+    --border:#1c3470;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 15% 0%, #102457 0%, transparent 45%),
+      radial-gradient(circle at 85% 10%, #0c1f4d 0%, transparent 40%),
+      var(--bg-deep);
+    color:var(--text-main);
+    font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
+    min-height:100vh;
+  }
+  header{
+    padding:48px 24px 32px;
+    text-align:center;
+    border-bottom:1px solid var(--border);
+    background:linear-gradient(180deg, rgba(46,107,255,0.08), transparent);
+  }
+  header h1{
+    margin:0 0 8px;
+    font-size:clamp(28px,4vw,40px);
+    letter-spacing:0.5px;
+    background:linear-gradient(90deg, var(--blue-cyan), var(--blue-electric));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    font-weight:800;
+  }
+  header p{
+    color:var(--text-dim);
+    margin:0;
+    font-size:15px;
+  }
+  .badge-row{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-top:18px;
+    flex-wrap:wrap;
+  }
+  .badge{
+    font-size:12px;
+    padding:6px 14px;
+    border-radius:999px;
+    border:1px solid var(--border);
+    color:var(--blue-soft);
+    background:rgba(46,107,255,0.08);
+  }
+  .filters{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    padding:20px;
+    flex-wrap:wrap;
+  }
+  .filter-btn{
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    color:var(--text-dim);
+    padding:8px 18px;
+    border-radius:999px;
+    cursor:pointer;
+    font-size:13px;
+    transition:all .2s;
+  }
+  .filter-btn:hover{ color:var(--text-main); border-color:var(--blue-electric); }
+  .filter-btn.active{
+    background:linear-gradient(90deg, var(--blue-electric), var(--blue-cyan));
+    color:#021024;
+    border-color:transparent;
+    font-weight:600;
+  }
+  main{
+    max-width:1400px;
+    margin:0 auto;
+    padding:10px 24px 80px;
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));
+    gap:24px;
+  }
+  .card{
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:16px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    transition:transform .2s, box-shadow .2s, border-color .2s;
+  }
+  .card:hover{
+    transform:translateY(-4px);
+    border-color:var(--blue-electric);
+    box-shadow:0 12px 30px -10px rgba(46,107,255,0.45);
+  }
+  .card-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 16px;
+    border-bottom:1px solid var(--border);
+  }
+  .platform-tag{
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:0.5px;
+    padding:4px 10px;
+    border-radius:6px;
+  }
+  .platform-tag.ig{ background:linear-gradient(90deg,#3fd0ff,#2e6bff); color:#021024; }
+  .platform-tag.tt{ background:linear-gradient(90deg,#1c3470,#3fd0ff); color:#021024; }
+  .card-index{ color:var(--text-dim); font-size:12px; }
+  .embed-wrap{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:10px;
+    min-height:480px;
+    background:#060f24;
+  }
+  .embed-wrap iframe, .embed-wrap blockquote{
+    width:100% !important;
+    max-width:100%;
+  }
+  .placeholder{
+    width:100%;
+    min-height:460px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    color:var(--text-dim);
+    font-size:13px;
+    text-align:center;
+    padding:20px;
+    border:1px dashed var(--border);
+    border-radius:12px;
+  }
+  .placeholder a{
+    color:var(--blue-cyan);
+    word-break:break-all;
+    font-size:11px;
+  }
+  footer{
+    text-align:center;
+    color:var(--text-dim);
+    font-size:12px;
+    padding:30px;
+    border-top:1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Galería de Ideas · Reels &amp; Contenido</h1>
+  <p>Todos los enlaces reunidos en un solo lugar para revisar inspiración rápidamente.</p>
+  <div class="badge-row">
+    <span class="badge" id="count-ig">Instagram: 0</span>
+    <span class="badge" id="count-tt">TikTok: 0</span>
+    <span class="badge" id="count-total">Total: 0</span>
+  </div>
+</header>
+
+<div class="filters">
+  <button class="filter-btn active" data-filter="all">Todos</button>
+  <button class="filter-btn" data-filter="ig">Instagram</button>
+  <button class="filter-btn" data-filter="tt">TikTok</button>
+</div>
+
+<main id="grid"></main>
+
+<footer>Galería generada para revisión de ideas de contenido · Tema azul digital</footer>
+
+<script async src="//www.instagram.com/embed.js"></script>
+<script async src="https://www.tiktok.com/embed.js"></script>
+
+<script>
+const links = [
+  "https://www.instagram.com/reels/DVd2h5WEfyD/",
+  "https://www.instagram.com/reels/DVsb5OGDBMp/",
+  "https://www.instagram.com/reels/DToQZhwjiNI/",
+  "https://www.instagram.com/reels/DVO_mAgiSPt/",
+  "https://www.instagram.com/reels/DUthYnHAeVs/",
+  "https://www.instagram.com/reels/DVPq3GUDZQL/",
+  "https://www.instagram.com/reels/DUG3LfyiYvJ/",
+  "https://www.instagram.com/reels/DVeOr4okRzr/",
+  "https://www.instagram.com/reels/DOjJSMADGs6/",
+  "https://www.instagram.com/reels/DVr0zJijt9G/",
+  "https://www.instagram.com/reels/DVjVkQWDdI9/",
+  "https://www.instagram.com/reels/DVY9s4mEZhS/",
+  "https://www.instagram.com/reels/DToOuJej4zK/",
+  "https://www.instagram.com/reels/DTynoIoDnv2/",
+  "https://www.instagram.com/reels/DTHB4fzD9vA/",
+  "https://www.tiktok.com/@bagancontent/video/7544476699757382919",
+  "https://www.instagram.com/reels/DS_MceDFD31/",
+  "https://www.instagram.com/reel/DWhrd9Ehzy7/",
+  "https://www.instagram.com/reel/DVsvOdYj8Mk/",
+  "https://www.instagram.com/reel/DYR-0jJuyem/",
+  "https://www.instagram.com/reel/DXvPFwJNVcN/",
+  "https://www.instagram.com/reel/DXxfqOqMHPX/",
+  "https://www.instagram.com/reel/DYii0anRA8p/",
+  "https://www.instagram.com/reels/DYfUfQGRm70/",
+  "https://www.instagram.com/p/DZdZMKTAFFc/",
+  "https://www.instagram.com/p/DYmmM6MgL1R/"
+];
+
+const grid = document.getElementById('grid');
+let igCount = 0, ttCount = 0;
+
+links.forEach((url, i) => {
+  const isTikTok = url.includes('tiktok.com');
+  const platform = isTikTok ? 'tt' : 'ig';
+  if(isTikTok) ttCount++; else igCount++;
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.platform = platform;
+
+  const head = document.createElement('div');
+  head.className = 'card-head';
+  head.innerHTML = `
+    <span class="platform-tag ${platform}">${isTikTok ? 'TIKTOK' : 'INSTAGRAM'}</span>
+    <span class="card-index">#${i+1}</span>
+  `;
+  card.appendChild(head);
+
+  const embedWrap = document.createElement('div');
+  embedWrap.className = 'embed-wrap';
+
+  if(isTikTok){
+    // Extraer video id para el embed oficial de TikTok
+    const match = url.match(/video\/(\d+)/);
+    const videoId = match ? match[1] : '';
+    const userMatch = url.match(/@([^/]+)/);
+    const user = userMatch ? userMatch[1] : '';
+    embedWrap.innerHTML = `
+      <blockquote class="tiktok-embed" cite="${url}" data-video-id="${videoId}" style="max-width: 325px; min-width: 280px;">
+        <section><a target="_blank" href="${url}">@${user}</a></section>
+      </blockquote>
+    `;
+  } else {
+    // Embed oficial de Instagram (blockquote + embed.js)
+    embedWrap.innerHTML = `
+      <blockquote class="instagram-media" data-instgrm-permalink="${url}" data-instgrm-version="14" style="background:#FFF; border-radius:8px; margin:0; max-width:340px; width:100%;">
+      </blockquote>
+    `;
+  }
+
+  card.appendChild(embedWrap);
+  grid.appendChild(card);
+});
+
+document.getElementById('count-ig').textContent = `Instagram: ${igCount}`;
+document.getElementById('count-tt').textContent = `TikTok: ${ttCount}`;
+document.getElementById('count-total').textContent = `Total: ${links.length}`;
+
+// Re-procesar embeds una vez cargados los scripts
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    if(window.instgrm) window.instgrm.Embeds.process();
+  }, 500);
+});
+
+// Filtros
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const f = btn.dataset.filter;
+    document.querySelectorAll('.card').forEach(card => {
+      card.style.display = (f === 'all' || card.dataset.platform === f) ? 'flex' : 'none';
+    });
+  });
+});
+</script>
+
+</body>
+</html>
